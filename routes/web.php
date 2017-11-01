@@ -42,12 +42,42 @@ Route::get('videos/{id}/download', function ($id) {
 //     return $value;
 // }
 
-Route::get('articles', function () {
-    $articles = \Cache::remember('articles.all', 60 * 60, function () {
-        return App\Article::all();
-    });
+interface ArticlesInterface
+{
+    public function all();
+}
 
-    return $articles;
+class CachableArticles implements ArticlesInterface
+{
+    private $articles;
+
+    public function __construct($articles)
+    {
+        $this->articles = $articles;
+    }
+
+    public function all()
+    {
+        return \Cache::remember('articles.all', 60 * 60, function () {
+            return $this->articles->all();
+        });
+    }
+}
+
+class Articles implements ArticlesInterface
+{
+    public function all()
+    {
+        return App\Article::all();
+    }
+}
+
+App::bind('ArticlesInterface', function () {
+    return new CachableArticles(new Articles);
+});
+
+Route::get('articles', function (ArticlesInterface $articles) {
+    return $articles->all();
 });
 
 Route::get('articles/trending', function () {
