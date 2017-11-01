@@ -46,3 +46,28 @@ Route::get('articles/{article}', function (App\Article $article) {
 
     return $article;
 });
+
+Route::get('users/{id}/stats', function ($id) {
+    // $user2stats = [
+    //     'favorites' => $user->favourites()->count(),
+    //     'watchLaters' => $user->watchLaters()->count(),
+    //     'completions' => $user->completions()->count(),
+    // ];
+
+    // Redis::hmset('users.2.stats', $user2stats);
+
+    return Redis::hgetall("users.{$id}.stats");
+});
+
+Route::get('favorite-video', function () {
+    // Auth::id();
+    Redis::hincrby('users.1.stats', 'favorites', 1);
+
+    return redirect('/users/1/stats');
+});
+
+Route::get('cache', function () {
+    Cache::put('foo', ['name' => 'laracasts', 'age' => 3], 10);
+
+    return Cache::get('foo');
+});
