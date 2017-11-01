@@ -31,6 +31,25 @@ Route::get('videos/{id}/download', function ($id) {
     return back();
 });
 
+// function remember($key, $minutes, $callback)
+// {
+//     if ($value = Redis::get($key)) {
+//         return json_decode($value);
+//     }
+
+//     Redis::setex($key, 60, $value = $callback());
+
+//     return $value;
+// }
+
+Route::get('articles', function () {
+    $articles = \Cache::remember('articles.all', 60 * 60, function () {
+        return App\Article::all();
+    });
+
+    return $articles;
+});
+
 Route::get('articles/trending', function () {
     $trending = Redis::zrevrange('trending_articles', 0, 2);
 
