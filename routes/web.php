@@ -120,3 +120,5 @@ Route::get('cache', function () {
 
     return Cache::get('foo');
 });
+
+Route::resource('lessons', 'LessonsController');
